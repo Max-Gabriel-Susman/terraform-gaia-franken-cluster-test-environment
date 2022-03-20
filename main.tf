@@ -22,7 +22,7 @@ resource "kubernetes_namespace" "example" {
 
 // aws configurations - requires valid cred src
 provider "aws" {
-  region = var.region
+  region = var.aws_franken_node_region
 }
 
 data "aws_ami" "ubuntu" {
@@ -43,10 +43,10 @@ data "aws_ami" "ubuntu" {
 
 resource "aws_instance" "ubuntu" {
   ami           = data.aws_ami.ubuntu.id
-  instance_type = var.instance_type
+  instance_type = var.aws_franken_node_instance_type
 
   tags = {
-    Name = var.instance_name
+    Name = var.aws_franken_node_instance_name
   }
 }
 /*
@@ -112,9 +112,49 @@ resource "google_compute_network" "vpc_network" {
 // vSphere configurations
 
 
-// aliyun configurations
+// alicloud configurations
+/*
+data "alicloud_images" "ubuntu" {
+  most_recent = true
+  name_regex  = "^ubuntu_18.*64"
+}
 
+module "ecs_cluster" {
+  source  = "alibaba/ecs-instance/alicloud"
+
+  number_of_instances = 5
+
+  name                        = "my-ecs-cluster"
+  use_num_suffix              = true
+  image_id                    = data.alicloud_images.ubuntu.ids.0
+  instance_type               = "ecs.sn1ne.large"
+  vswitch_id                  = "vsw-fhuqie"
+  security_group_ids          = ["sg-12345678"]
+  associate_public_ip_address = true
+  internet_max_bandwidth_out  = 10
+
+  key_name = "for-ecs-cluster"
+
+  system_disk_category = "cloud_ssd"
+  system_disk_size     = 50
+
+  tags = {
+    Created      = "Terraform"
+    Environment = "dev"
+  }
+}
+*/
 
 // digitalOcean configurations
+/*
+resource "digitalocean_droplet" "web" {
+  image  = "ubuntu-18-04-x64"
+  name   = "web-1"
+  region = "nyc2"
+  size   = "s-1vcpu-1gb"
+}
+*/
 
-// citrix configurations
+// citrixadc configurations
+
+// k8s configurations 
