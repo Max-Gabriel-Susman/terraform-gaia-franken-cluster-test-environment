@@ -1,5 +1,3 @@
-
-
 /***********************************************************
 
 Terraform configuration for the franken cluster system that 
@@ -7,47 +5,6 @@ is currently being used as a test environment for the
 ongoing development of the Terr
 
 ***********************************************************/
-terraform {
-  
-  cloud {
-    organization = "gabe-susman"
-
-    workspaces {
-      tags = ["tag"]
-    }
-  }
-  
-  
-  required_providers {
-    kubernetes = {
-      source = "hashicorp/kubernetes"
-      version = "2.8.0" 
-    }
-    
-    aws = {
-      source  = "hashicorp/aws"
-      version = "~> 3.27"
-    }
-
-    /*
-    google = {
-      source = "hashicorp/google"
-      version = "3.5.0"
-    }
-    */
-
-    oci = {
-      source = "hashicorp/oci"
-    }
-    
-    azurerm = {
-      source  = "hashicorp/azurerm"
-      version = "~> 2.65"
-    }
-  }
-
-  required_version = ">= 0.14.9"
-}
 
 // k8s configurations - currently being refused connection with localhost:80
 /*
@@ -64,6 +21,34 @@ resource "kubernetes_namespace" "example" {
 */
 
 // aws configurations - requires valid cred src
+provider "aws" {
+  region = var.region
+}
+
+data "aws_ami" "ubuntu" {
+  most_recent = true
+
+  filter {
+    name   = "name"
+    values = ["ubuntu/images/hvm-ssd/ubuntu-focal-20.04-amd64-server-*"]
+  }
+
+  filter {
+    name   = "virtualization-type"
+    values = ["hvm"]
+  }
+
+  owners = ["099720109477"] # Canonical
+}
+
+resource "aws_instance" "ubuntu" {
+  ami           = data.aws_ami.ubuntu.id
+  instance_type = var.instance_type
+
+  tags = {
+    Name = var.instance_name
+  }
+}
 /*
 provider "aws" {
   profile = "default"
@@ -72,7 +57,7 @@ provider "aws" {
 
 resource "aws_instance" "app_server" {
   ami           = "ami-830c94e3"
-  instance_type = "t2.micro"
+  instance_type = "t2.micro"`
 
   tags = {
     Name = "ExampleAppServerInstance"
